@@ -163,7 +163,7 @@ class MLEvaluator:
 
             # Bagging — combine plusieurs arbres de décision
             "Bagging": BaggingClassifier(
-                base_estimator=DecisionTreeClassifier(max_depth=8),
+                estimator=DecisionTreeClassifier(max_depth=8),
                 n_estimators=50,
                 random_state=42
             ),
