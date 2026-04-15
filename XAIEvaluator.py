@@ -21,6 +21,7 @@ class XAIEvaluator:
         self.X_train         = evaluator.X_train
         self.X_test          = evaluator.X_test
         self.y_test          = evaluator.y_test
+        self.y_train         = evaluator.y_train 
         self.feature_names   = evaluator.feature_names
         self.all_predictions = evaluator.all_predictions
         self.trained_models  = {
@@ -29,27 +30,30 @@ class XAIEvaluator:
         }
         self.selected_samples = {}
 
+        unique_labels = sorted(self.y_test.unique())
+        self.class_mapping = {
+            code: self.CLASS_NAMES[i]
+            for i, code in enumerate(unique_labels)
+        }
+        self.reverse_mapping = {v: k for k, v in self.class_mapping.items()} 
+        self.classes = self.CLASS_NAMES 
+    
+
     def select_samples(self):
         """
         Sélectionne les instances représentatives.
         Consensus sur CONSENSUS_MODELS uniquement.
-        Méthode commune à LIME, MC-LIME et SHAP.
+        Méthode commune à LIME, MC-LIME, SHAP et DiCE.
         """
         print('\nSÉLECTION DES INSTANCES')
         print('=' * 50)
-
-        unique_labels = sorted(self.y_test.unique())
-        class_mapping = {
-            code: self.CLASS_NAMES[i]
-            for i, code in enumerate(unique_labels)
-        }
-        print(f'Mapping : {class_mapping}')
-
-        for encoded_class, class_name in class_mapping.items():
+        print(f'Mapping : {self.class_mapping}')
+    
+        for encoded_class, class_name in self.class_mapping.items():
             class_indices = self.y_test[
                 self.y_test == encoded_class
             ].index.tolist()
-
+    
             correctly_predicted = []
             for idx in class_indices:
                 pos = list(self.y_test.index).index(idx)
@@ -59,10 +63,10 @@ class XAIEvaluator:
                     if model_name in self.CONSENSUS_MODELS
                 ):
                     correctly_predicted.append(pos)
-
+    
             print(f'\n{class_name} : {len(correctly_predicted)} '
                   f'avec consensus / {len(class_indices)} totales')
-
+    
             if len(correctly_predicted) >= 4:
                 np.random.seed(42)
                 choix = np.random.choice(
@@ -75,8 +79,8 @@ class XAIEvaluator:
             else:
                 choix = []
                 print('  → Aucune ❌')
-
+    
             self.selected_samples[class_name] = choix
-
+    
         total = sum(len(v) for v in self.selected_samples.values())
         print(f'\n✓ Total : {total} instances')
