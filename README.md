@@ -67,7 +67,7 @@ Le dataset distingue quatre profils selon deux axes :
   LIME · MC-LIME · SHAP · DiCE
          │
          ▼
-[Évaluation — LLM-as-a-Judge (Phase 3)]
+[Évaluation — LLM-as-a-Judge (Phase 3)] U [Interview]
 ```
 
 ---
